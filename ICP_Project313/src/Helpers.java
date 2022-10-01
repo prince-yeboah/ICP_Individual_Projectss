@@ -64,9 +64,6 @@ public class Helpers {
 	// to find the path between startDestination and endDestination airport
 	public ArrayList<Route> routeTaken(Airport startDestination, Airport endDestination) {
 		ArrayList<Route> route = new ArrayList<>();
-		
-		// to indicate if a Node is explored
-		// all arrayListofAirports are unexplored right now
 		HashMap<Airport, Boolean> explored = new HashMap<>();
 		// to store shortest distances
 		HashMap<Airport, Integer> shortestDistances = new HashMap<>();
@@ -74,7 +71,6 @@ public class Helpers {
 			explored.put(Node, false);
 			shortestDistances.put(Node, Integer.MAX_VALUE);
 		}
-		// Storing the parent of each node or airport
 		HashMap<Airport, Airport> parent = new HashMap<>();
 		shortestDistances.put(startDestination, 0);
 		parent.put(startDestination, null);
@@ -129,15 +125,11 @@ public class Helpers {
         double a = Math.sin(latitudeDistance / 2) * Math.sin(latitudeDistance / 2)
 				+ Math.sin(longitudeDistance / 2) * Math.sin(longitudeDistance / 2)
 				* Math.cos(l1) * Math.cos(l2);
-
-		// radius of the earth
-        double earthRadius = 6371;
-        double c = 2 * Math.asin(Math.sqrt(a));
-		return (int) (earthRadius * c);
+        double radius = 6371;
+        double d = 2 * Math.asin(Math.sqrt(a));
+		return (int) (radius * d);
 	}
     
-
-    // initializing the required files to string variables.
     //database dr
     //public static final String routeData = "/Users/yeboahprincee/Documents/ICP_Project313/src/routes.csv";
     public static final String routeData = "routes.csv";
@@ -149,7 +141,7 @@ public class Helpers {
 
 
 // thea main static method to run the program
-    public static void main(String[] args) {
+    public static void main(String args[]) {
 
 		// String variable to hold the name of the input file.
 		String fileName = "input.txt";
@@ -178,16 +170,19 @@ public class Helpers {
 			if( startAirportDestination == null ) {
 				printWriter.println("There is not an airport in " + startLocation);
 			}
+
 			// if the endDestination location is null it would print the following text
 			else if( endAirportDestination == null ) {
 				printWriter.println("Cannot find you endDestination Airport: " + destinationLocation);
-			}
-			else {
-				// if both the start and the endDestination are not null, the route taken would be printed to the output file
+			}else {
+
+				// if both the start and the endDestination are not null, then is printed
 				Helpers Helpers = new Helpers(airports, routes);
+
 				// find path
 				ArrayList<Route> path = Helpers.routeTaken(startAirportDestination, endAirportDestination);
-				// print the route of the flights.
+
+				// Code line to print the route
 				int numAdditionalStops = 0;
 				int totalNumberOfFlights=0;
 				int totalDistance = 0;
@@ -204,11 +199,11 @@ public class Helpers {
             sc.close();
 			printWriter.close();
 
-			System.out.print("Your output file has been written.\n Please check the file with the name: " + outputFile);
+			System.out.print("Output file has been written.\n Check the file with the file name: " + outputFile);
 
 		}
 		catch(FileNotFoundException e) {
-			System.out.println("This file is not found.");
+			System.out.println("The file(s) is not found.");
 		}
 	}
 
@@ -263,10 +258,6 @@ public class Helpers {
 			while( sc.hasNextLine() ) {
 				String everyline = sc.nextLine();
 				String[] AIR = everyline.split(",");
-
-				// This code check the length of each everyline.
-				// If the length of the everyline is not equal to 8, then there is some invalid data
-				// If there is invalid data, skip past it because the reason for that data will be unknown and probably a typo.
 				if( AIR.length != 8 ) {
 					continue;
 				}
@@ -301,18 +292,18 @@ public class Helpers {
 			Scanner sc = new Scanner(new File(routeData));
 			while( sc.hasNextLine() ) {
 				String everyline = sc.nextLine();
-				String[] RT = everyline.split(",");
+				String[] neededColumns = everyline.split(",");
 
 				// This code check the length of each everyline.
 				// If the length of the everyline is not equal to 9, then there is some invalid data
 				// If there is invalid data, skip past it because the reason for that data will be unknown and probably a typo.
-				if( RT.length != 9 ) {
+				if( neededColumns.length != 9 ) {
 					continue;
 				}
 
-				// if any of the RT lines has this character: "\N", skip this row
+				// if any of the neededColumns lines has this character: "\N", skip this row
 				boolean invalidData = false;
-				for (String readLine : RT) {
+				for (String readLine : neededColumns) {
 					if (readLine.equals("\\N")) {
 						invalidData = true;
 						break;
@@ -321,9 +312,9 @@ public class Helpers {
 				if( invalidData ) {
 					continue;
 				}
-				// creating a new route with the specific needed columns
-				Route route = new Route(RT[0], RT[1], RT[2], RT[3], RT[4], RT[5],
-						RT[6], Integer.parseInt(RT[7]), RT[8]);
+				// creating a new route with the needed columns to work with
+				Route route = new Route(neededColumns[0], neededColumns[1], neededColumns[2], neededColumns[3], neededColumns[4], neededColumns[5],
+						neededColumns[6], Integer.parseInt(neededColumns[7]), neededColumns[8]);
 				routes.add(route);
 			}
 			sc.close();
@@ -341,11 +332,10 @@ public class Helpers {
 		return name + "_output.txt";
 	}
 	
-	// extracting the value of the city and country of a specific airport.
+	// The code extracts the city and country of a specific airport.
 	private static Airport airportUsed(String readLine, ArrayList<Airport> airports) {
 		String city = readLine.substring(0, readLine.indexOf(','));
 		String country = readLine.substring(readLine.indexOf(',') + 1).trim();
-		// using just the equals() method will not ignore cases so the equalsIgnoreCase() method was implemented.
 		for( Airport airport : airports )
 			if (airport.getCity().equalsIgnoreCase(city) && airport.getCountry().equalsIgnoreCase(country)) {
 				return airport;
